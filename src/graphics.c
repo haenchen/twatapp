@@ -10,6 +10,7 @@
 enum {
     WIDTH = 640,
     HEIGHT = 480,
+    SPRITE_SIZE = 32,
 };
 
 static SDL_Window *window;
@@ -42,8 +43,14 @@ void render_game(const struct state *state) {
     for (struct element *current = state->players->head;
             current != NULL;
             current = current->next) {
-        SDL_Rect render_position = {0, 0, 32, 32};
-        SDL_Rect texture_position = {0, 0, 32, 32};
+        SDL_Rect render_position = {current->object->x,
+                                    current->object->y,
+                                    SPRITE_SIZE,
+                                    SPRITE_SIZE};
+        SDL_Rect texture_position = {2 * SPRITE_SIZE * current->object->obj.player.direction,
+                                     0,
+                                     SPRITE_SIZE,
+                                     SPRITE_SIZE};
         SDL_RenderCopy(renderer, texture_map[current->object->type],
                        &texture_position, &render_position);
     }

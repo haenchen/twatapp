@@ -2,6 +2,7 @@
 
 #include <game.h>
 #include <graphics.h>
+#include <input.h>
 #include <object.h>
 
 int main(void) {
@@ -10,7 +11,16 @@ int main(void) {
     const struct state *state = init_state();
     add_player(player);
     init_graphics();
-    render_game(state);
-    SDL_Delay(10000);
+    int mouse_x;
+    int mouse_y;
+    enum input input;
+    while (state->running) {
+        do {
+            input = read_input(&mouse_x, &mouse_y);
+            handle_input(input, mouse_x, mouse_y);
+        } while (input != I_NONE);
+        render_game(state);
+        SDL_Delay(33);
+    }
     return 0;
 }

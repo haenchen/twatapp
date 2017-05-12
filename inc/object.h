@@ -14,9 +14,9 @@ enum weapon_type {
 
 enum direction {
     D_UP,
+    D_RIGHT,
     D_DOWN,
     D_LEFT,
-    D_RIGHT,
 };
 
 enum item_type {
