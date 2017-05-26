@@ -16,7 +16,7 @@ struct object *create_player(int x, int y, int client_id) {
     this->obj.player.weapon = WT_SWORD;
     this->obj.player.direction = D_DOWN;
     this->obj.player.moving = 0;
-    this->obj.player.cspeed = 100;
+    this->obj.player.cspeed = 50;
     this->print = print_player;
     return this;
 }

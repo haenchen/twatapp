@@ -11,10 +11,12 @@ enum {
     WIDTH = 640,
     HEIGHT = 480,
     SPRITE_SIZE = 32,
+    ANIMATION_SPEED = 8,
 };
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
+static unsigned tick = 0;
 
 static void clear_references(void);
 static void load_texture(int index, const char *filename);
@@ -40,6 +42,7 @@ void init_graphics(void) {
 }
 
 void render_game(const struct state *state) {
+    tick = (tick + 1) % (ANIMATION_SPEED * 2);
     SDL_SetRenderDrawColor(renderer, 0, 127, 0, 255);
     SDL_RenderClear(renderer);
     foreach(state->players, render_player);
@@ -74,11 +77,12 @@ void load_texture(int index, const char *filename) {
 }
 
 void render_player(struct object *object) {
+    int x = tick > (ANIMATION_SPEED - 1) && (object->obj.player.moving);
     SDL_Rect render_position = {object->x,
                                 object->y,
                                 SPRITE_SIZE,
                                 SPRITE_SIZE};
-    SDL_Rect texture_position = {2 * SPRITE_SIZE * object->obj.player.direction,
+    SDL_Rect texture_position = {2 * SPRITE_SIZE * object->obj.player.direction + x * SPRITE_SIZE,
                                  0,
                                  SPRITE_SIZE,
                                  SPRITE_SIZE};

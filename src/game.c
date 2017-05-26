@@ -6,6 +6,7 @@
 static struct state *state;
 
 static void move_player(enum direction direction);
+static int p_current_player(struct object *object);
 
 const struct state *init_state(void) {
     assert(state == NULL);
@@ -20,6 +21,9 @@ void add_player(struct object *player) {
 }
 
 void handle_input(const struct input *input) {
+    struct object *player = find(state->players, p_current_player);
+    assert(player != NULL);
+    player->obj.player.moving = input->player_moving;
     if (input->player_moving) {
         move_player(input->player_direction);
     }
@@ -29,10 +33,6 @@ void handle_input(const struct input *input) {
     if (input->quit) {
         state->running = 0;
     }
-}
-
-int p_current_player(struct object *object) {
-    return object->obj.player.client_id == state->client_id;
 }
 
 void move_player(enum direction direction) {
@@ -48,4 +48,8 @@ void move_player(enum direction direction) {
         case D_RIGHT: player->x += speed; break;
     }
     player->obj.player.direction = direction;
+}
+
+int p_current_player(struct object *object) {
+    return object->obj.player.client_id == state->client_id;
 }
