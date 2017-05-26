@@ -19,6 +19,8 @@ static SDL_Renderer *renderer;
 static void clear_references(void);
 static void load_texture(int index, const char *filename);
 
+static void render_player(struct object *object);
+
 SDL_Texture *texture_map[5];
 
 void init_graphics(void) {
@@ -40,20 +42,7 @@ void init_graphics(void) {
 void render_game(const struct state *state) {
     SDL_SetRenderDrawColor(renderer, 0, 127, 0, 255);
     SDL_RenderClear(renderer);
-    for (struct element *current = state->players->head;
-            current != NULL;
-            current = current->next) {
-        SDL_Rect render_position = {current->object->x,
-                                    current->object->y,
-                                    SPRITE_SIZE,
-                                    SPRITE_SIZE};
-        SDL_Rect texture_position = {2 * SPRITE_SIZE * current->object->obj.player.direction,
-                                     0,
-                                     SPRITE_SIZE,
-                                     SPRITE_SIZE};
-        SDL_RenderCopy(renderer, texture_map[current->object->type],
-                       &texture_position, &render_position);
-    }
+    foreach(state->players, render_player);
     SDL_RenderPresent(renderer);
 }
 
@@ -82,4 +71,17 @@ void load_texture(int index, const char *filename) {
     texture_map[index] = SDL_CreateTextureFromSurface(renderer, surface);
     check_SDL(texture_map[index] != NULL, "create_texture");
     SDL_FreeSurface(surface);
+}
+
+void render_player(struct object *object) {
+    SDL_Rect render_position = {object->x,
+                                object->y,
+                                SPRITE_SIZE,
+                                SPRITE_SIZE};
+    SDL_Rect texture_position = {2 * SPRITE_SIZE * object->obj.player.direction,
+                                 0,
+                                 SPRITE_SIZE,
+                                 SPRITE_SIZE};
+    SDL_RenderCopy(renderer, texture_map[object->type],
+                   &texture_position, &render_position);
 }

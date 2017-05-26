@@ -1,14 +1,14 @@
 #pragma once
 
-enum input {
-    I_UP,
-    I_DOWN,
-    I_LEFT,
-    I_RIGHT,
-    I_CLICK,
-    I_QUIT,
-    I_INVALID,
-    I_NONE,
+#include <object.h>
+
+struct input {
+    enum direction player_direction;
+    int player_moving;
+    int mouse_x;
+    int mouse_y;
+    int mouse_click;
+    int quit;
 };
 
-enum input read_input(int *mouse_x, int *mouse_y);
+void read_input(struct input *input);

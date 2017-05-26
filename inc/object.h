@@ -91,3 +91,7 @@ struct element {
 struct object *create_player(int x, int y, int client_id);
 
 struct list *create_list(void);
+
+void foreach(struct list *list, void (*f)(struct object *));
+
+struct object *find(struct list *list, int (*p)(struct object *));

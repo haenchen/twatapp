@@ -72,3 +72,27 @@ void list_remove(struct list *this, struct object *object) {
         break;
     }
 }
+
+void foreach(struct list *list, void (*f)(struct object *)) {
+    assert(list != NULL);
+    for (struct element *current = list->head;
+            current != NULL;
+            current = current->next) {
+        if (current->garbage) {
+            continue;
+        }
+        f(current->object);
+    }
+}
+
+struct object *find(struct list *list, int (*p)(struct object *)) {
+    assert(list != NULL);
+    for (struct element *current = list->head;
+            current != NULL;
+            current = current->next) {
+        if (!current->garbage && p(current->object)) {
+            return current->object;
+        }
+    }
+    return NULL;
+}

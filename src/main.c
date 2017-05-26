@@ -13,12 +13,13 @@ int main(void) {
     init_graphics();
     int mouse_x;
     int mouse_y;
-    enum input input;
+    struct input input = {.player_moving = 0,
+                          .quit = 0,
+                          .mouse_click = 0
+                         };
     while (state->running) {
-        do {
-            input = read_input(&mouse_x, &mouse_y);
-            handle_input(input, mouse_x, mouse_y);
-        } while (input != I_NONE);
+        read_input(&input);
+        handle_input(&input);
         render_game(state);
         SDL_Delay(33);
     }
