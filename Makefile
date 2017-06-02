@@ -1,5 +1,6 @@
 TARGET = twatapp
 BUILD  = build
+CONFIG ?= .
 SRCDIR ?= src
 INCDIR ?= inc
 
@@ -9,7 +10,7 @@ ifneq ($(BUILD), $(notdir $(CURDIR)))
 
 all: $(BUILD)
 	@$(MAKE) --no-print-directory -C $< -f $(CURDIR)/Makefile \
-		SRCDIR=$(CURDIR)/$(SRCDIR) INCDIR=$(CURDIR)/$(INCDIR) $(MAKECMDGOALS)
+		SRCDIR=$(CURDIR)/$(SRCDIR) INCDIR=$(CURDIR)/$(INCDIR)  CONFIG=$(CURDIR)/$(CONFIG) $(MAKECMDGOALS)
 
 .PHONY: $(BUILD)
 $(BUILD):
@@ -24,8 +25,8 @@ clean:
 
 else
 
-CFLAGS = -Wall -Wextra -Wpedantic -std=c99 `sdl2-config --cflags` -I$(INCDIR)
-LDFLAGS = `sdl2-config --libs` -lSDL2_image
+CFLAGS = -Wall -Wextra -Wpedantic -std=c99 `sdl2-config --cflags` -I$(INCDIR) -I$(CONFIG)
+LDFLAGS = `sdl2-config --libs` -lSDL2_image -lm
 
 SRC = $(notdir $(wildcard $(SRCDIR)/*.c))
 OBJ = $(SRC:.c=.o)

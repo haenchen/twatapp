@@ -46,8 +46,8 @@ struct bullet {
     enum weapon_type type;
     int player_id;
     int dmg;
-    int dir_x;
-    int dir_y;
+    double dir_x;
+    double dir_y;
     unsigned velocity;
 };
 
@@ -61,8 +61,8 @@ struct player {
 };
 
 struct object {
-    int x;
-    int y;
+    double x;
+    double y;
     enum object_type type;
     union {
         struct player player;

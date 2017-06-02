@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 static struct object *create_object(int x, int y, enum object_type type);
 static void print_player(struct object *this);
@@ -15,8 +16,9 @@ struct object *create_bullet(int x, int y, int dir_x, int dir_y, int player_id, 
     this->obj.bullet.type = type;
     this->obj.bullet.player_id = player_id;
     this->obj.bullet.dmg = 1;
-    this->obj.bullet.dir_x = dir_x;
-    this->obj.bullet.dir_y = dir_y;
+    double length = sqrt(dir_x * dir_x + dir_y * dir_y);
+    this->obj.bullet.dir_x = dir_x / length;
+    this->obj.bullet.dir_y = dir_y / length;
     this->obj.bullet.velocity = 10;
     this->print = print_bullet;
     return this;
@@ -48,8 +50,8 @@ void print_player(struct object *this) {
 
 void print_bullet(struct object *this) {
     printf("<bullet object at %p>\n", this);
-    printf("\tposition (%i | %i)\n", this->x, this->y);
-    printf("\tdirection (%i | %i)\n", this->obj.bullet.dir_x, this->obj.bullet.dir_y);
+    printf("\tposition (%3.3g | %3.3g)\n", this->x, this->y);
+    printf("\tdirection (%3.3g | %3.3g)\n", this->obj.bullet.dir_x, this->obj.bullet.dir_y);
 }
 
 struct list *create_list(void) {

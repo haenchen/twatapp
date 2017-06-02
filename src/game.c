@@ -2,11 +2,14 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 
 static struct state *state;
 
 static void move_player(enum direction direction);
 static int p_current_player(struct object *object);
+static void add_bullet(struct object *bullet);
+static void move_bullet(struct object *this);
 
 const struct state *init_state(void) {
     assert(state == NULL);
@@ -62,4 +65,13 @@ void move_player(enum direction direction) {
 
 int p_current_player(struct object *object) {
     return object->obj.player.client_id == state->client_id;
+}
+
+void progress_game() {
+    foreach(state->bullets, move_bullet);
+}
+
+void move_bullet(struct object *this) {
+    this->x += this->obj.bullet.dir_x * this->obj.bullet.velocity;
+    this->y += this->obj.bullet.dir_y * this->obj.bullet.velocity;
 }
