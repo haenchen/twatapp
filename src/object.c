@@ -6,9 +6,21 @@
 
 static struct object *create_object(int x, int y, enum object_type type);
 static void print_player(struct object *this);
+static void print_bullet(struct object *this);
 static void list_append(struct list *this, struct object *object);
 static void list_remove(struct list *this, struct object *object);
 
+struct object *create_bullet(int x, int y, int dir_x, int dir_y, int player_id, enum weapon_type type) {
+    struct object *this = create_object(x, y, OT_BULLET);
+    this->obj.bullet.type = type;
+    this->obj.bullet.player_id = player_id;
+    this->obj.bullet.dmg = 1;
+    this->obj.bullet.dir_x = dir_x;
+    this->obj.bullet.dir_y = dir_y;
+    this->obj.bullet.velocity = 10;
+    this->print = print_bullet;
+    return this;
+}
 struct object *create_player(int x, int y, int client_id) {
     struct object *this = create_object(x, y, OT_PLAYER);
     this->obj.player.client_id = client_id;
@@ -32,6 +44,12 @@ struct object *create_object(int x, int y, enum object_type type) {
 
 void print_player(struct object *this) {
     printf("<player object at %p>\n", this);
+}
+
+void print_bullet(struct object *this) {
+    printf("<bullet object at %p>\n", this);
+    printf("\tposition (%i | %i)\n", this->x, this->y);
+    printf("\tdirection (%i | %i)\n", this->obj.bullet.dir_x, this->obj.bullet.dir_y);
 }
 
 struct list *create_list(void) {

@@ -88,6 +88,7 @@ struct element {
     struct element *next;
 };
 
+struct object *create_bullet(int x, int y, int dir_x, int dir_y, int player_id, enum weapon_type type);
 struct object *create_player(int x, int y, int client_id);
 
 struct list *create_list(void);

@@ -13,11 +13,16 @@ const struct state *init_state(void) {
     state = malloc(sizeof *state);
     state->running = 1;
     state->players = create_list();
+    state->bullets = create_list();
     return state;
 }
 
 void add_player(struct object *player) {
     state->players->append(state->players, player);
+}
+
+void add_bullet(struct object *bullet) {
+    state->bullets->append(state->bullets, bullet);
 }
 
 void handle_input(const struct input *input) {
@@ -28,7 +33,12 @@ void handle_input(const struct input *input) {
         move_player(input->player_direction);
     }
     if (input->mouse_click) {
-        printf("%d;%d\n", input->mouse_x, input->mouse_y);
+        int dir_x = input->mouse_x - player->x;
+        int dir_y = input->mouse_y - player->y;
+        struct object *bullet = create_bullet(player->x, player->y, dir_x, dir_y,
+                                              player->obj.player.client_id,
+                                              player->obj.player.weapon);
+        add_bullet(bullet);
     }
     if (input->quit) {
         state->running = 0;

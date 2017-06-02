@@ -11,17 +11,43 @@ enum {
     WIDTH = 640,
     HEIGHT = 480,
     SPRITE_SIZE = 32,
+    BULLET_SIZE = 13,
     ANIMATION_SPEED = 8,
 };
 
+enum animation_type {
+    AT_PLAYER,
+    AT_BULLET,
+};
+
+struct animation_template {
+    int speed;
+    int frames;
+};
+
+struct animation {
+    int is_ticking;
+    int tick;
+    int frame;
+    enum animation_type type;
+};
+
+
 static SDL_Window *window;
 static SDL_Renderer *renderer;
-static unsigned tick = 0;
+static struct animation_template templates[2] = {
+    {.speed = 8, .frames = 2},
+    {.speed = 8, .frames = 2}
+};
+static struct animation player_animation = {.is_ticking = 0, .tick = 0, .frame = 0, .type = AT_PLAYER};
 
 static void clear_references(void);
 static void load_texture(int index, const char *filename);
 
 static void render_player(struct object *object);
+static void render_bullet(struct object *object);
+static void tick_animation(struct animation *animation);
+static void stop_animation(struct animation *this);
 
 SDL_Texture *texture_map[5];
 
@@ -39,14 +65,17 @@ void init_graphics(void) {
     check_SDL(renderer != NULL,
               "init_graphics: SDL_CreateRenderer");
     load_texture(OT_PLAYER, "res/player_sprite.bmp");
+    load_texture(OT_BULLET, "res/bullet.png");
 }
 
 void render_game(const struct state *state) {
-    tick = (tick + 1) % (ANIMATION_SPEED * 2);
     SDL_SetRenderDrawColor(renderer, 0, 127, 0, 255);
     SDL_RenderClear(renderer);
     foreach(state->players, render_player);
+    foreach(state->bullets, render_bullet);
     SDL_RenderPresent(renderer);
+
+    /* tick _all_ animations */
 }
 
 void clear_references(void) {
@@ -76,8 +105,25 @@ void load_texture(int index, const char *filename) {
     SDL_FreeSurface(surface);
 }
 
+void render_bullet(struct object *object) {
+    SDL_Rect render_position = {object->x,
+                                object->y,
+                                BULLET_SIZE,
+                                BULLET_SIZE};
+    SDL_Rect texture_position = {0,
+                                 0,
+                                 BULLET_SIZE,
+                                 BULLET_SIZE};
+    SDL_RenderCopy(renderer, texture_map[object->type],
+                   &texture_position, &render_position);
+}
 void render_player(struct object *object) {
-    int x = tick > (ANIMATION_SPEED - 1) && (object->obj.player.moving);
+    int x = player_animation.frame;
+    if (object->obj.player.moving) {
+        tick_animation(&player_animation);
+    } else if (player_animation.is_ticking){
+        stop_animation(&player_animation);
+    }
     SDL_Rect render_position = {object->x,
                                 object->y,
                                 SPRITE_SIZE,
@@ -88,4 +134,18 @@ void render_player(struct object *object) {
                                  SPRITE_SIZE};
     SDL_RenderCopy(renderer, texture_map[object->type],
                    &texture_position, &render_position);
+}
+
+void tick_animation(struct animation *this) {
+    this->is_ticking = 1;
+    this->tick++;
+    if (this->tick >= templates[this->type].speed) {
+        this->tick = 0;
+        this->frame = (this->frame + 1) % templates[this->type].frames;
+    }
+}
+
+void stop_animation(struct animation *this) {
+    this->is_ticking = 0;
+    this->tick = templates[this->type].speed - 1;
 }
