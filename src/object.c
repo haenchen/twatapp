@@ -5,11 +5,17 @@
 #include <stdlib.h>
 #include <math.h>
 
+enum {
+#include<config/constants.h>
+};
+
 static struct object *create_object(int x, int y, enum object_type type);
 static void print_player(struct object *this);
 static void print_bullet(struct object *this);
 static void list_append(struct list *this, struct object *object);
 static void list_remove(struct list *this, struct object *object);
+
+static unsigned current_id = 0;
 
 struct object *create_bullet(int x, int y, int dir_x, int dir_y, int player_id, enum weapon_type type) {
     struct object *this = create_object(x, y, OT_BULLET);
@@ -37,6 +43,10 @@ struct object *create_player(int x, int y, int client_id) {
 
 struct object *create_object(int x, int y, enum object_type type) {
     struct object *this = malloc(sizeof *this);
+    if (current_id == C_MAX_OBJECTS_PER_PLAYER) {
+        exit(EXIT_FAILURE);
+    }
+    this->id = current_id++;
     this->x = x;
     this->y = y;
     this->type = type;

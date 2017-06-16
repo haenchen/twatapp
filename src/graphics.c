@@ -12,6 +12,10 @@ enum {
     HEIGHT = 480,
 };
 
+enum {
+#include<config/constants.h>
+};
+
 enum animation_type {
     AT_PLAYER,
     AT_BULLET,
@@ -40,13 +44,14 @@ static const struct template templates[] = {
 #include <config/templates.h>
 };
 
-static struct animation player_animation = {.is_ticking = 0, .tick = 0, .frame = 0, .type = AT_PLAYER};
+static struct animation *animations[C_MAX_OBJECTS_PER_PLAYER] = {};
 
 static void clear_references(void);
 static void load_texture(int index, const char *filename);
 
 static void render_object(struct object *object);
 static void render_bullet(struct object *object);
+static void start_animation(struct object *object);
 static void tick_animation(struct animation *animation);
 static void stop_animation(struct animation *this);
 
@@ -71,7 +76,7 @@ void init_graphics(void) {
 }
 
 void render_game(const struct state *state) {
-    SDL_SetRenderDrawColor(renderer, 0, 127, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 63, 0, 127);
     SDL_RenderClear(renderer);
     foreach(state->players, render_object);
     foreach(state->bullets, render_object);
@@ -108,16 +113,21 @@ void load_texture(int index, const char *filename) {
 }
 
 void render_object(struct object *object) {
-    if (object->obj.player.moving) {
-        tick_animation(&player_animation);
-    } else if (player_animation.is_ticking){
-        stop_animation(&player_animation);
+    if (animations[object->id] == NULL) {
+        start_animation(object);
     }
+    struct animation *animation = animations[object->id];
     enum direction direction = D_UP;
     if (object->type == OT_PLAYER) {
         direction = object->obj.player.direction;
+        if (object->obj.player.moving) {
+            tick_animation(animation);
+        } else {
+            stop_animation(animation);
+        }
+    } else {
+        tick_animation(animation);
     }
-    struct animation *animation = NULL;
     const struct template *template = templates + animation->type;
     int direction_offset = template->frames * template->width * template->directions[direction];
     int frame_offset = animation->frame * template->width;
@@ -131,6 +141,18 @@ void render_object(struct object *object) {
                                  template->height};
     SDL_RenderCopy(renderer, texture_map[animation->type],
                    &texture_position, &render_position);
+}
+
+void start_animation(struct object *object) {
+    animations[object->id] = malloc(sizeof *animations[object->id]);
+    animations[object->id]->is_ticking = 0;
+    animations[object->id]->tick = 0;
+    animations[object->id]->frame = 0;
+    if (object->type == OT_PLAYER) {
+        animations[object->id]->type = AT_PLAYER;
+    } else {
+        animations[object->id]->type = AT_BULLET;
+    }
 }
 
 void tick_animation(struct animation *this) {

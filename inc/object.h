@@ -64,6 +64,7 @@ struct object {
     double x;
     double y;
     enum object_type type;
+    unsigned id;
     union {
         struct player player;
         struct bullet bullet;
